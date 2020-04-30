@@ -1,6 +1,6 @@
-'use strict'
+"use strict";
 
-import { ipcRenderer } from 'electron'
+import { ipcRenderer } from "electron";
 import sourceMapSupport from "source-map-support";
 
 window.sourceMapSupport = sourceMapSupport;

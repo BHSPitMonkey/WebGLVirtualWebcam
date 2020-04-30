@@ -1,28 +1,28 @@
-'use strict'
+"use strict";
 
-import { app, BrowserWindow, ipcMain } from 'electron'
-import * as path from 'path'
-import { format as formatUrl } from 'url'
-import VirtualCamera from '../VirtualCamera.mjs'
+import { app, BrowserWindow, ipcMain } from "electron";
+import * as path from "path";
+import { format as formatUrl } from "url";
+import VirtualCamera from "../VirtualCamera.mjs";
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Create the Virtual Camera
 const camera = new VirtualCamera();
-console.log('VirtualCamera created:', camera);
+console.log("VirtualCamera created:", camera);
 
 // IPC event handler that receives new frame buffers from the renderer
-ipcMain.on('new-frame', (_event, arg) => {
+ipcMain.on("new-frame", (_event, arg) => {
   // arg should be a UInt8Array
   camera.writeFrame(arg);
 });
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow
+let mainWindow;
 
 function createMainWindow() {
   const window = new BrowserWindow({
-    title: 'WebGL Virtual Webcam',
+    title: "WebGL Virtual Webcam",
     width: 800,
     height: 480,
     webPreferences: {
@@ -41,52 +41,53 @@ function createMainWindow() {
   });
 
   if (isDevelopment) {
-    window.webContents.openDevTools()
+    window.webContents.openDevTools();
   }
 
   if (isDevelopment) {
-    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-  }
-  else {
-    window.loadURL(formatUrl({
-      pathname: path.join(__dirname, 'index.html'),
-      protocol: 'file',
-      slashes: true
-    }))
+    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+  } else {
+    window.loadURL(
+      formatUrl({
+        pathname: path.join(__dirname, "index.html"),
+        protocol: "file",
+        slashes: true,
+      })
+    );
   }
 
-  window.on('closed', () => {
-    mainWindow = null
-  })
+  window.on("closed", () => {
+    mainWindow = null;
+  });
 
-  window.webContents.on('devtools-opened', () => {
-    window.focus()
+  window.webContents.on("devtools-opened", () => {
+    window.focus();
     setImmediate(() => {
-      window.focus()
-    })
-  })
+      window.focus();
+    });
+  });
 
-  return window
+  return window;
 }
 
 app.allowRendererProcessReuse = true; // This makes a deprecation notice shut up
 
 // quit application when all windows are closed
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   // on macOS it is common for applications to stay open until the user explicitly quits
-  if (process.platform !== 'darwin') {
-    app.quit()
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
-app.on('activate', () => {
+app.on("activate", () => {
   // on macOS it is common to re-create a window even after all windows have been closed
   if (mainWindow === null) {
-    mainWindow = createMainWindow()
+    mainWindow = createMainWindow();
   }
-})
+});
 
 // create main BrowserWindow when electron is ready
-app.on('ready', () => {
-  mainWindow = createMainWindow()
-})
+app.on("ready", () => {
+  mainWindow = createMainWindow();
+});
