@@ -24,7 +24,7 @@ function createMainWindow() {
   const window = new BrowserWindow({
     title: "WebGL Virtual Webcam",
     width: 800,
-    height: 480,
+    height: 600,
     webPreferences: {
       // Below is where we specify our preload script. __dirname points to our source file's path and the preload
       // path should point to the Webpack-emitted preload bundle.

@@ -15,13 +15,17 @@ import css from "./index.css";
 // Temporary 3D cube just to get something on the canvas
 
 /*============= Creating a canvas =================*/
+const canvasContainer = document.createElement("div");
+canvasContainer.setAttribute("class", "canvas-container");
+document.body.appendChild(canvasContainer);
 const width = 1280;
 const height = 720;
 const canvas = document.createElement("canvas");
 canvas.id = "canvas";
 canvas.setAttribute("width", width);
 canvas.setAttribute("height", height);
-document.body.appendChild(canvas);
+canvasContainer.appendChild(canvas);
+
 const pixelCount = width * height;
 
 /** @type {WebGL2RenderingContext} */
