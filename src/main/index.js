@@ -2,47 +2,20 @@
 
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
-import * as fs from 'fs'
 import { format as formatUrl } from 'url'
-//const ioctl = require("ioctl");
+import VirtualCamera from '../VirtualCamera.mjs'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
-if (isDevelopment) {
-  // TODO: Move into .env
-  process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
-}
 
+// Create the Virtual Camera
+const camera = new VirtualCamera('/dev/video0', 1280, 720);
+console.log('VirtualCamera created:', camera);
 
-/// TODO: Wrap all of the v4l2 business logic into a standalone module/class
-const device = fs.openSync("/dev/video0", "w");
-
-// TODO: Initialize using VIDIOC_S_FMT
-// https://www.npmjs.com/package/ioctl
-// Ref: https://github.com/jremmons/pyfakewebcam/blob/master/pyfakewebcam/pyfakewebcam.py#L56
-// Python: VIDIOC_S_FMT = _IOWR('V', 5, v4l2_format)
-// Currently cheating using pyfakewebcam: run the script first
-
-let safeToWrite = true;
-ipcMain.on("new-frame", (event, arg) => {
+// IPC event handler that receives new frame buffers from the renderer
+ipcMain.on('new-frame', (_event, arg) => {
   // arg should be a UInt8Array
-  //console.log("Got new frame: " + arg[0], arg[240000 * 4]);
-
-  // Great, now we have a RGBA pixel buffer. Time to send it to the loopback device!
-  // Ref: https://github.com/jremmons/pyfakewebcam/blob/master/pyfakewebcam/pyfakewebcam.py
-  // Ref: https://www.kernel.org/doc/html/v4.14/media/uapi/v4l/vidioc-g-fmt.html
-  // TODO: VIDIOC_S_FMT
-  if (safeToWrite) {
-    safeToWrite = false;
-    fs.write(device, arg, (err, written, buffer) => {
-      //console.log(err, written);
-      safeToWrite = true;
-    });
-  } else {
-    console.log("Skipped frame while waiting for write callback");
-  }
+  camera.writeFrame(arg);
 });
-/// END TODO
-
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow
@@ -51,7 +24,7 @@ function createMainWindow() {
   const window = new BrowserWindow({
     title: 'WebGL Virtual Webcam',
     width: 800,
-    height: 600,
+    height: 480,
     webPreferences: {
       // Below is where we specify our preload script. __dirname points to our source file's path and the preload
       // path should point to the Webpack-emitted preload bundle.
@@ -96,7 +69,7 @@ function createMainWindow() {
   return window
 }
 
-app.allowRendererProcessReuse = true;
+app.allowRendererProcessReuse = true; // This makes a deprecation notice shut up
 
 // quit application when all windows are closed
 app.on('window-all-closed', () => {
