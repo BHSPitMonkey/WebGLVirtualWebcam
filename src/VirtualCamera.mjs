@@ -45,6 +45,17 @@ export default class {
    * @param {number} height Ignored for now, defaults to 720
    */
   constructor(device, width, height) {
+    // If device not specified, just use the first v4l2loopback device found on system
+    if (device === undefined) {
+      // TODO: Move device listing/selection into a static method
+      const devices = fs.readdirSync('/sys/devices/virtual/video4linux/');
+      if (devices.length == 0) {
+        throw new Error("No v4l2loopback devices found! Have you enabled the module using modprobe?");
+      }
+      device = `/dev/${devices[0]}`;
+      console.log(`Automatically selecting first virtual camera (${device})`);
+    }
+
     // Open the device
     this.device = fs.openSync(device, "w");
 

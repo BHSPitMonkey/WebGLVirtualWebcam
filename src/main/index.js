@@ -8,7 +8,7 @@ import VirtualCamera from '../VirtualCamera.mjs'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Create the Virtual Camera
-const camera = new VirtualCamera('/dev/video0', 1280, 720);
+const camera = new VirtualCamera();
 console.log('VirtualCamera created:', camera);
 
 // IPC event handler that receives new frame buffers from the renderer

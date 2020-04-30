@@ -12,15 +12,12 @@ npm install
 
 # For more info about this, see: https://www.electronjs.org/docs/tutorial/using-native-node-modules
 ./node_modules/.bin/electron-rebuild -o ioctl
+
+# Create a virtual camera device using v4l2loopback (this only needs to be done once)
+sudo modprobe v4l2loopback devices=1 card_label="WebGL Virtual Webcam"
 ```
 
 To start:
-
-```bash
-sudo modprobe v4l2loopback devices=1 card_label="WebGL Virtual Webcam" # Only need to run this once
-```
-
-(Verify whether /dev/video0 is the loopback device, and modify source if it isn't)
 
 ```bash
 npm run dev
